@@ -1,0 +1,190 @@
+# Dr. Snake 3
+# Eric Olenski
+# 4-12-16
+ 
+import pygame
+from Walls import Wall
+from LeftSnake import LeftSnake
+from RightSnake import RightSnake
+ 
+# Define some colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (50, 205, 50)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+BROWN = (84, 46, 23)
+YELLOW = (255, 255, 0)
+SKY = (168, 255, 255)
+
+PI = 3.141592653
+ 
+pygame.init()
+ 
+# Set the width and height of the screen [width, height]
+screenHeight = 800
+screenWidth = 1600
+size = (screenWidth, screenHeight)
+screen = pygame.display.set_mode(size)
+ 
+pygame.display.set_caption("Dr. Snake")
+allSpritesList = pygame.sprite.Group()
+hitList = pygame.sprite.Group()
+
+# ---------------------Walls----------------------------
+wallList = []
+
+# Left side walls---------------------------------------
+# Left------------------------
+wall = Wall(0, 0, 20, 800)
+wallList.insert(0, wall)
+
+# Top-------------------------
+wall = Wall(0, 0, 800, 20)
+wallList.insert(0, wall)
+
+# Bottom----------------------
+wall = Wall(0, 780, 800, 20)
+wallList.insert(0, wall)
+
+# Right-----------------------
+wall = Wall(780, 0, 20, 800)
+wallList.insert(0, wall)
+
+# Right side walls--------------------------------------
+# Left------------------------
+wall = Wall(800, 0, 20, 800)
+wallList.insert(0, wall)
+
+# Top-------------------------
+wall = Wall(800, 0, 800, 20)
+wallList.insert(0, wall)
+
+# Bottom----------------------
+wall = Wall(800, 780, 800, 20)
+wallList.insert(0, wall)
+
+# Right-----------------------
+wall = Wall(1580, 0, 20, 800)
+wallList.insert(0, wall)
+
+allSpritesList.add(wallList)
+# ------------------------------------------------------
+
+# ---------------------Snakes---------------------------
+snakeWidth = 18
+snakeHeight = 18
+margin = 2
+# Initial speed------------------------
+leftxChange = 0
+leftyChange = 0
+rightxChange = 0
+rightyChange = 0
+# Left---------------------------------
+leftSnakeList = []
+leftSnake = LeftSnake(40, 40)
+leftSnakeList.insert(0, leftSnake)
+allSpritesList.add(leftSnake)
+# Right--------------------------------
+rightSnakeList = []
+rightSnake = LeftSnake(840, 40)
+rightSnakeList.insert(0, rightSnake)
+allSpritesList.add(rightSnake)
+# ------------------------------------------------------
+
+# Loop until the user clicks the close button.
+done = False
+
+# Used to manage how fast the screen updates
+clock = pygame.time.Clock()
+ 
+# -------- Main Program Loop -----------
+while not done:
+    # --- Main event loop
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+
+        # ------------------Movement of snakes-----------------------------
+        # Set left snakes direction----------------------
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                leftxChange = (snakeWidth + margin) * -1
+                leftyChange = 0
+
+            elif event.key == pygame.K_d:
+                leftxChange = (snakeWidth + margin)
+                leftyChange = 0
+                
+            elif event.key == pygame.K_w:
+                leftxChange = 0
+                leftyChange = (snakeWidth + margin) * -1
+                
+            elif event.key == pygame.K_s:
+                leftxChange = 0
+                leftyChange = (snakeWidth + margin)
+
+        # Set right snake direction---------------------
+            if event.key == pygame.K_LEFT:
+                rightxChange = (snakeWidth + margin) * -1
+                rightyChange = 0
+
+            elif event.key == pygame.K_RIGHT:
+                rightxChange = (snakeWidth + margin)
+                rightyChange = 0
+                
+            elif event.key == pygame.K_UP:
+                rightxChange = 0
+                rightyChange = (snakeWidth + margin) * -1
+                
+            elif event.key == pygame.K_DOWN:
+                rightxChange = 0
+                rightyChange = (snakeWidth + margin)
+
+    # Make left snake move------------------------------
+    allSpritesList.remove(leftSnake)
+    hitList = pygame.sprite.spritecollide(leftSnake, allSpritesList, False)
+    for block in hitList:
+        pygame.quit()
+        
+    if len(leftSnakeList) > 1:
+        oldSegment = leftSnakeList.pop()
+        allSpritesList.remove(oldSegment)
+
+    x = leftSnakeList[0].rect.x + leftxChange
+    y = leftSnakeList[0].rect.y + leftyChange
+    leftSnakeList.remove(leftSnake)
+    leftSnake = LeftSnake(x, y)
+    leftSnakeList.insert(0, leftSnake)
+    allSpritesList.add(leftSnake)
+
+    # Make right snake move-----------------------------
+    allSpritesList.remove(rightSnake)
+    hitList = pygame.sprite.spritecollide(rightSnake, allSpritesList, False)
+    for block in hitList:
+        pygame.quit()
+        
+    if len(rightSnakeList) > 1:
+        oldSegment = rightSnakeList.pop()
+        allSpritesList.remove(oldSegment)
+
+    x = rightSnakeList[0].rect.x + rightxChange
+    y = rightSnakeList[0].rect.y + rightyChange
+    rightSnakeList.remove(rightSnake)
+    rightSnake = RightSnake(x, y)
+    rightSnakeList.insert(0, rightSnake)
+    allSpritesList.add(rightSnake)
+    #----------------------------------------------------------------------
+    # Splits the screen
+    screen.fill(WHITE)
+    pygame.draw.rect(screen, BLACK, [0, 0, 1600, 800])
+
+    # Draw all sprites to screen
+    allSpritesList.draw(screen)
+
+    pygame.display.flip()
+ 
+    clock.tick(10)
+
+# Close the window and quit.
+pygame.quit()
